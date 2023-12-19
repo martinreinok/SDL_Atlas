@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-constexpr int LCD_UPDATE_INTERVAL_MS = 300;
+constexpr int LCD_UPDATE_INTERVAL_MS = 250;
 unsigned long lcd_last_update = 0;
 
 class Display {
@@ -11,16 +11,16 @@ class Display {
     bool display_last_loading_dot = false;
 
   public:
-    void write(bool loading, float laser_value, float weight_value);
+    void write(bool loading, float laser_value, float weight_value, bool ignore_update_interval);
 
 };
 
-void Display::write(bool loading, float laser_value, float weight_value) {
-  float laser_value_threshold = 0.2; // percentage
+void Display::write(bool loading, float laser_value, float weight_value, bool ignore_update_interval = false) {
+  float laser_value_threshold = 0.3; // percentage
   float weight_value_threshold = 3; // grams
 
   unsigned long current_time = millis();
-  if (current_time - lcd_last_update > LCD_UPDATE_INTERVAL_MS) {
+  if (current_time - lcd_last_update > LCD_UPDATE_INTERVAL_MS || ignore_update_interval) {
     Serial1.print("C>");
     Serial1.print("\n");
     Serial1.print("L1>");

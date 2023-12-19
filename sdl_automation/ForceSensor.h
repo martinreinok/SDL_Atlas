@@ -11,8 +11,8 @@ constexpr int FORCE_DATA = 2;
 constexpr int FORCE_CLOCK = 3;
 constexpr int TARE_ADDRESS = 0;
 constexpr int CALIBRATION_ADDRESS = 4;
-long weight_tare;
-float weight_calibration;
+long weight_tare = 8245436;
+float weight_calibration = 177.08;
 float weight_latest_value;
 
 HX711_ADC LoadCell(WEIGHT_DATA, WEIGHT_CLOCK);
@@ -37,8 +37,9 @@ float ForceSensor::read() {
 
 void ForceSensor::initialize() {
     LoadCell.begin();
-    EEPROM.get(TARE_ADDRESS, weight_tare);
-    EEPROM.get(CALIBRATION_ADDRESS, weight_calibration);
+    /* Currently not used as there is no method to calibrate the machine on the go (only with computer)*/
+    // EEPROM.get(TARE_ADDRESS, weight_tare);
+    // EEPROM.get(CALIBRATION_ADDRESS, weight_calibration);
     LoadCell.setTareOffset(weight_tare);
     LoadCell.setCalFactor(weight_calibration);
     LoadCell.start(2000, false);

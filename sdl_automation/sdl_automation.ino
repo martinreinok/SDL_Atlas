@@ -31,7 +31,7 @@ constexpr int MOTOR_FORWARD_BUTTON = 5;
 
 /* Load Cell */
 constexpr int WEIGHT_LIMIT_ABSOLUTE = 20000; // This is load cell capacity
-constexpr int WEIGHT_LIMIT_FORWARD = -200; // Motor can push maximum of 200 grams into the load cell
+constexpr int WEIGHT_LIMIT_FORWARD = -3500; // Motor can push maximum of 1000 grams into the load cell
 constexpr int WEIGHT_LIMIT_BACKWARD = 3000; // Motor must strech the textile to 3kg load
 
 bool AUTOMATIC_MODE = false;
@@ -50,6 +50,9 @@ void setup() {
   Serial1.begin(38400);
   Motor.initialize();
   Force.initialize();
+  float force_value = Force.read();
+  float laser_value = Laser.read();
+  LCD.write(false, laser_value, force_value);
 }
 
 void loop() {
@@ -63,18 +66,22 @@ void loop() {
       float force_value = Force.read();
       float laser_value = Laser.read();
       while(force_value > (float)WEIGHT_LIMIT_FORWARD && !digitalRead(ROTARY_SWITCH)) {
+        force_value = Force.read();
+        laser_value = Laser.read();
         int speed = Motor.get_max_speed_from_laser(laser_value);
         Motor.move_forward(speed);
         LCD.write(true, laser_value, force_value);
       }
       Motor.stop();
-      LCD.write(false, laser_value, force_value);
+      LCD.write(false, laser_value, force_value, false);
     }
 
     else if (move_backward) {
       float force_value = Force.read();
       float laser_value = Laser.read();
       while(force_value < (float)WEIGHT_LIMIT_BACKWARD && !digitalRead(ROTARY_SWITCH)) {
+        force_value = Force.read();
+        laser_value = Laser.read();
         if (force_value < (float)WEIGHT_LIMIT_BACKWARD * 0.6) {
           Motor.move_backward(Motor.SPEED_MEDIUM);
         }
@@ -84,7 +91,7 @@ void loop() {
         LCD.write(true, laser_value, force_value);
       }
       Motor.stop();
-      LCD.write(true, laser_value, force_value);
+      LCD.write(false, laser_value, force_value, false);
 
       /* Maintain force at 3kg */
       int duration = 2000;
@@ -101,7 +108,7 @@ void loop() {
         }      
         LCD.write(true, laser_value, force_value);
       }
-      LCD.write(false, laser_value, force_value);
+      LCD.write(false, laser_value, force_value, true);
     }
   }
 
@@ -123,7 +130,10 @@ void loop() {
     }
 
     else {
+      float force_value = Force.read();
+      float laser_value = Laser.read();
       Motor.stop();
+      LCD.write(false, laser_value, force_value);
     }
   }
 }
